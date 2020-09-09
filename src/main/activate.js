@@ -42,9 +42,9 @@ async function getServicePick(services) {
 async function getInterfacePick(interfaceList){
   const interfacePickItems = interfaceList.map((inter) => {
     return {
-      label: inter.funName,
+      label: inter.path,
       description: inter.funDesc,
-      detail: inter.path,
+      detail: inter.funName,
       inter
     }
   });
@@ -66,6 +66,17 @@ async function getServiceInfo(origin, service) {
   const httpPath = originUrl+'docs'+'/'+serviceAppId
   const data = await getHttpRequest(httpPath);
   return data;
+}
+
+async function getTempPick(config){
+  const {temps=[]}=config;
+
+  const tempPickItems = temps.map((item)=>({label:item.name,path:item.path}));
+  const temp = await openSelect(tempPickItems);
+  const root = getProjectRoot();
+  const path = Path.resolve(root,temp.path);
+  const func = require(path);
+  return func;
 }
 
 /**
@@ -94,12 +105,11 @@ async function activate(context) {
       const interfacePick = await getInterfacePick(interfaceList);
       const {inter} = interfacePick;
       // 选择对应的模板
-
+      const tempFunc = await getTempPick(config);
       // 根据选择的模板生成字符串
-
+      const insertStr = tempFunc(inter);
       // 将字符串插入当前位置
-
-      console.log(inter.path)
+      textEditor.insertSnippet(new vscode.SnippetString(insertStr))
     } catch (err) {
       sendErrorMessage(err);
     }

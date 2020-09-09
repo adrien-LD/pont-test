@@ -1,4 +1,4 @@
-const {jsdocRefParse} = require("./jsdocRefParse");
+const {jsdocParse} = require("./jsdocParse");
 
 /**
  * 参数列表解析出请求所需的信息
@@ -41,8 +41,9 @@ function parameter2requestInfo(parameters) {
  * @param {string} method 方法类型
  * @param {string} path 路径
  * @param {Object} item 接口信息
+ * @param {Object} definitions 类型定义
  */
-function funParseReal(method, path, item) {
+function funParseReal(method, path, item, definitions) {
   const {
     summary: funDesc,
     operationId:funName,
@@ -51,14 +52,8 @@ function funParseReal(method, path, item) {
     responses
   } = item;
 
-  // TODO {yzy} 解析出jsdoc
-  const leadDoc = `
-/**
- * 解析方法(真)
- * @param {string} method 方法类型
- * @param {string} path 路径
- * @param {Object} item 接口信息
- */`;
+  // 解析出jsdoc
+  const leadDoc = jsdocParse(funDesc, parameters, responses, definitions )
 
   // 转换params
   const funParams = parameters.map((paramItem) => ({
@@ -88,19 +83,19 @@ function funParseReal(method, path, item) {
   }
 }
 
-function funParse(path, pathItem) {
+function funParse(path, pathItem, definitions) {
   const result = [];
   if (pathItem.get) {
-    result.push(funParseReal('GET', path, pathItem.get));
+    result.push(funParseReal('GET', path, pathItem.get, definitions));
   }
   if (pathItem.post) {
-    result.push(funParseReal('POST', path, pathItem.post));
+    result.push(funParseReal('POST', path, pathItem.post, definitions));
   }
   if (pathItem.delete) {
-    result.push(funParseReal('DELETE', path, pathItem.delete));
+    result.push(funParseReal('DELETE', path, pathItem.delete, definitions));
   }
   if (pathItem.update) {
-    result.push(funParseReal('UPDATE', path, pathItem.update));
+    result.push(funParseReal('UPDATE', path, pathItem.update, definitions));
   }
 
   return result;
@@ -121,17 +116,13 @@ function swagger2Parse(data) {
   for (const path in paths) {
     if (paths.hasOwnProperty(path)) {
       const pathItem = paths[path];
-      interfaceList = interfaceList.concat(funParse(path, pathItem));
+      interfaceList = interfaceList.concat(funParse(path, pathItem, definitions));
     }
   }
-
-  // TODO {yzy} 类型定义解析
-  const typedefLeadDocs = jsdocRefParse(definitions);
 
   return {
     basePath,
     interfaceList,
-    typedefLeadDocs
   }
 }
 
