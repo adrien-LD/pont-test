@@ -1,17 +1,72 @@
 function translateType(type) {
-  return 'string';
+  if (!type) return 'any'
+  const typeReal = type.trim().toLowerCase();
+  switch (typeReal) {
+    case 'integer':
+    case 'float':
+    case 'double':
+      return 'number';
+    default:
+      break;
+  }
+  return typeReal;
+}
+
+function getTypedefStrLine(name, refInfo, leadStr) {
+  const typeStr = refInfo.type;
+  const type = typeStr ? typeStr.trim().toLowerCase() : "$ref";
+  let result = '';
+  switch (type) {
+    case "object":
+      const objStrList = name ? [` * @property {Object} ${leadStr+name}`] : [];
+      const {
+        properties
+      } = refInfo;
+      for (const prop in properties) {
+        if (properties.hasOwnProperty(prop)) {
+          const element = properties[prop];
+          const addLeadStr = leadStr + name ? leadStr + name + '.' : '';
+          const propStr = getTypedefStrLine(prop, element, addLeadStr);
+          objStrList.push(propStr);
+        }
+      }
+      result = objStrList.join('\n');
+      break;
+    case "array":
+      const arrType = refInfo.items.type;
+      result = ` * @property {${translateType(arrType)}[]} ${leadStr+name}`;
+      break;
+    case "$ref":
+      const refStrSpliteList = refInfo.$ref.split('/');
+      result = ` * @property {${refStrSpliteList[refStrSpliteList.length-1]}} ${leadStr+name}`;
+    default:
+      result = ` * @property {${translateType(type)}} ${leadStr+name}`;
+  }
+  return result;
 }
 
 /**
- * @typedef CommonResponse$VirtualEstatePriceStatus$
- * @property {string} test
+ * 获取引用的jsdoc字符串
+ * @param {string} ref 引用的列表
+ * @param {any} definitions
  */
+function getTypedefStr(ref, definitions) {
+  const refInfo = definitions[ref];
+  const refLead = getTypedefStrLine('', refInfo, '');
+  return `
+/**
+ * @typedef ${ref.replace(/[«|»]/g, "_")}
+${refLead}
+ */
+`
+}
 
-function getParamsReturnLead(funDesc = "", parameters = [], responses) {
+function getParamsReturnLead(funDesc = "", parameters = [], responses, definitions) {
 
   const parameDocList = [];
   const refs = [];
 
+  // 参数jsdoc解析
   parameters.forEach((item) => {
     let type = 'any';
     if (item.type) {
@@ -23,7 +78,7 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses) {
         const refSplitList = item.schema.$ref.split('/');
         const refStr = refSplitList[refSplitList.length - 1];
         refs.push(refStr);
-        type = refStr.replace(/[«|»]/g, "$");
+        type = refStr.replace(/[«|»]/g, "_");
       }
     }
     const paramStr = ` * @param {${type}} ${item.name.replace(/-/g,'')} ${item.description}`
@@ -42,11 +97,16 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses) {
       const returnRefSplitList = returnInfo.schema.$ref.split('/');
       const returnRefStr = returnRefSplitList[returnRefSplitList.length - 1];
       refs.push(returnRefStr);
-      returnType = returnRefStr.replace(/[«|»]/g, "$");
+      returnType = returnRefStr.replace(/[«|»]/g, "_");
     }
   }
 
+  // 被引用的typedef
+
+  const typedefStrList = refs.map((ref) => getTypedefStr(ref, definitions));
+
   const paramsReturnLead = `
+${typedefStrList.join('\n')}
 /**
  * ${funDesc}
 ${parameDocList.join('\n')}
@@ -64,7 +124,8 @@ ${parameDocList.join('\n')}
  * @param {*} definitions
  */
 function jsdocParse(funDesc, parameters, responses, definitions) {
-  const paramsReturnLead = getParamsReturnLead(funDesc, parameters, responses);
+  // TODO {yzy} 解析方法得换成另一种 递归解析的方式 否则无法完全解析出来
+  const paramsReturnLead = getParamsReturnLead(funDesc, parameters, responses, definitions);
   return paramsReturnLead
 }
 
