@@ -1,4 +1,5 @@
 const {jsdocParse} = require("./jsdocParse");
+const definitionsParse = require("./definitions");
 
 /**
  * 参数列表解析出请求所需的信息
@@ -43,7 +44,7 @@ function parameter2requestInfo(parameters) {
  * @param {Object} item 接口信息
  * @param {Object} definitions 类型定义
  */
-function funParseReal(method, path, item, definitions) {
+function funParseReal(method, path, item, defObject) {
   const {
     summary: funDesc,
     operationId:funName,
@@ -53,7 +54,7 @@ function funParseReal(method, path, item, definitions) {
   } = item;
 
   // 解析出jsdoc
-  const leadDoc = jsdocParse(funDesc, parameters, responses, definitions )
+  const leadDoc = jsdocParse(funDesc, parameters, responses, defObject )
 
   // 转换params
   const funParams = parameters.map((paramItem) => ({
@@ -83,19 +84,19 @@ function funParseReal(method, path, item, definitions) {
   }
 }
 
-function funParse(path, pathItem, definitions) {
+function funParse(path, pathItem, defObject) {
   const result = [];
   if (pathItem.get) {
-    result.push(funParseReal('GET', path, pathItem.get, definitions));
+    result.push(funParseReal('GET', path, pathItem.get, defObject));
   }
   if (pathItem.post) {
-    result.push(funParseReal('POST', path, pathItem.post, definitions));
+    result.push(funParseReal('POST', path, pathItem.post, defObject));
   }
   if (pathItem.delete) {
-    result.push(funParseReal('DELETE', path, pathItem.delete, definitions));
+    result.push(funParseReal('DELETE', path, pathItem.delete, defObject));
   }
   if (pathItem.update) {
-    result.push(funParseReal('UPDATE', path, pathItem.update, definitions));
+    result.push(funParseReal('UPDATE', path, pathItem.update, defObject));
   }
 
   return result;
@@ -113,10 +114,13 @@ function swagger2Parse(data) {
 
   let interfaceList = [];
 
+  // 解析typedef
+  const defObject = definitionsParse(definitions);
+
   for (const path in paths) {
     if (paths.hasOwnProperty(path)) {
       const pathItem = paths[path];
-      interfaceList = interfaceList.concat(funParse(path, pathItem, definitions));
+      interfaceList = interfaceList.concat(funParse(path, pathItem, defObject));
     }
   }
 

@@ -1,4 +1,5 @@
-const parse = require("./src/parse")
+const parse = require("./src/parse");
+const definitionsParse = require("./src/parse/swagger/definitions");
 
 const data = {
   basePath:'/',
@@ -31,9 +32,181 @@ const data = {
       }
     }
   },
-  definitions:[]
+  definitions:{
+    "InfoStreamResponse«InfoStream»": {
+      "type": "object",
+      "properties": {
+        "agentList": {
+          "$ref": "#/definitions/AgentList"
+        },
+        "hasCollect": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "introduction": {
+          "type": "string"
+        },
+        "isRecommend": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "participantCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "recommendTotal": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfoStream"
+          }
+        },
+        "title": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "videoCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "InfoStreamResponse«InfoStream»"
+    },
+    "QuestionResponse«Answer»": {
+      "type": "object",
+      "properties": {
+        "agentList": {
+          "$ref": "#/definitions/AgentList"
+        },
+        "allQuestionH5Url": {
+          "type": "string"
+        },
+        "answerCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "introduction": {
+          "type": "string"
+        },
+        "isShow": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "participantCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "quest": {
+          "$ref": "#/definitions/Quest"
+        },
+        "questionTemplates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quizUrl": {
+          "type": "string"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Answer"
+          }
+        },
+        "redirectUrl": {
+          "type": "string"
+        },
+        "share": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuestionResponse«Answer»"
+    },
+    "QuestionResponse«Question»": {
+      "type": "object",
+      "properties": {
+        "agentList": {
+          "$ref": "#/definitions/AgentList"
+        },
+        "allQuestionH5Url": {
+          "type": "string"
+        },
+        "answerCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "introduction": {
+          "type": "string"
+        },
+        "isShow": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "participantCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "quest": {
+          "$ref": "#/definitions/Quest"
+        },
+        "questionTemplates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quizUrl": {
+          "type": "string"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        },
+        "redirectUrl": {
+          "type": "string"
+        },
+        "share": {
+          "type": "boolean"
+        },
+        "title": {
+          "type": "string"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "QuestionResponse«Question»"
+    },
+
+  }
 }
 
-const result = parse(data,'swagger2.0');
+const result = definitionsParse(data.definitions);
 
 console.log(result);

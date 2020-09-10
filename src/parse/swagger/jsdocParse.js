@@ -12,77 +12,22 @@ function translateType(type) {
   return type;
 }
 
-function getTypedefStrLine(name, refInfo, leadStr) {
-  if(!refInfo) return;
-  const typeStr = refInfo.type;
-  const type = typeStr ? typeStr.trim().toLowerCase() : "$ref";
-  let result = '';
-  switch (type) {
-    case "object":
-      const objStrList = name ? [` * @property {Object} ${leadStr+name}`] : [];
-      const {
-        properties
-      } = refInfo;
-      for (const prop in properties) {
-        if (properties.hasOwnProperty(prop)) {
-          const element = properties[prop];
-          const addLeadStr = leadStr + name ? leadStr + name + '.' : '';
-          const propStr = getTypedefStrLine(prop, element, addLeadStr);
-          objStrList.push(propStr);
-        }
+function deepStringify(refs,defObject,exist={}){
+  let result = [];
+  refs.forEach((ref) => {
+    if(!exist[ref]){
+      const def = defObject[ref];
+      exist[ref] = true;
+      if(def){
+        result.push(def.defStr);
+        result = deepStringify(def.dependenceList,defObject,exist).concat(result);
       }
-      result = objStrList.join('\n');
-      break;
-    case "array":
-      let arrType = refInfo.items.type;
-      if(!arrType){
-        const refStrSpliteList = refInfo.items.$ref.split('/');
-        arrType = refStrSpliteList[refStrSpliteList.length-1];
-      }
-      result = ` * @property {${translateType(arrType)}[]} ${leadStr+name}`;
-      break;
-    case "$ref":
-      const refStrSpliteList = refInfo.$ref.split('/');
-      const refRealStr = refStrSpliteList[refStrSpliteList.length-1];
-      result = ` * @property {${refRealStr.replace(/[«|»]/g, "_")}} ${leadStr+name}`;
-      break;
-    default:
-      result = ` * @property {${translateType(type)}} ${leadStr+name}`;
-  }
+    }
+  });
   return result;
 }
 
-/**
- * 获取引用的jsdoc字符串
- * @param {string} ref 引用的列表
- * @param {any} definitions
- */
-function getTypedefStr(ref, definitions) {
-  const refInfo = definitions[ref];
-
-  const refLead = getTypedefStrLine('', refInfo, '');
-
-  if(!refLead){
-    return '';
-  }
-
-  return `
-/**
- * @typedef ${ref.replace(/[«|»]/g, "_")}
-${refLead}
- */`
-}
-
-function refParse(refStr){
-  const refInfo = /«(?<ref>.+)»$/.exec(refStr);
-  if(!refInfo) return [refStr];
-  if(refInfo.groups.ref){
-    return [refStr].concat(refParse(refInfo.groups.ref));
-  }
-  return [refStr];
-}
-
-function getParamsReturnLead(funDesc = "", parameters = [], responses, definitions) {
+function getParamsReturnLead(funDesc = "", parameters = [], responses, defObject) {
 
   const parameDocList = [];
   let refs = [];
@@ -98,7 +43,7 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, definitio
       } else if (item.schema.$ref) {
         const refSplitList = item.schema.$ref.split('/');
         const refStr = refSplitList[refSplitList.length - 1];
-        refs = refs.concat(refParse(refStr));
+        refs.push(refStr);
         type = refStr.replace(/[«|»]/g, "_");
       }
     }
@@ -117,14 +62,13 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, definitio
     } else if (returnInfo.schema.$ref) {
       const returnRefSplitList = returnInfo.schema.$ref.split('/');
       const returnRefStr = returnRefSplitList[returnRefSplitList.length - 1];
-      refs = refs.concat(refParse(returnRefStr));
+      refs.push(returnRefStr);
       returnType = returnRefStr.replace(/[«|»]/g, "_");
     }
   }
 
   // 被引用的typedef
-
-  const typedefStrList = refs.map((ref) => getTypedefStr(ref, definitions));
+  const typedefStrList = deepStringify(refs,defObject);
 
   const paramsReturnLead = `
 ${typedefStrList.join('\n')}
@@ -142,11 +86,11 @@ ${parameDocList.join('\n')}
  * @param {*} funDesc 方法描述
  * @param {*} parameters 方法参数信息
  * @param {*} responses 方法返回结果
- * @param {*} definitions typedef的固定结构内容
+ * @param {*} defObject typedef的固定结构内容
  */
-function jsdocParse(funDesc, parameters, responses, definitions) {
-  // TODO {yzy} 解析方法得换成另一种 递归解析的方式 否则无法完全解析出来
-  const paramsReturnLead = getParamsReturnLead(funDesc, parameters, responses, definitions);
+function jsdocParse(funDesc, parameters, responses, defObject) {
+  // TODO {yzy} 解决map list等类型的问题 解决根据当前已有的typedef再来生成typedef的问题
+  const paramsReturnLead = getParamsReturnLead(funDesc, parameters, responses, defObject);
   return paramsReturnLead
 }
 
