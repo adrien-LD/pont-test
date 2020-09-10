@@ -9,10 +9,11 @@ function translateType(type) {
     default:
       break;
   }
-  return typeReal;
+  return type;
 }
 
 function getTypedefStrLine(name, refInfo, leadStr) {
+  if(!refInfo) return;
   const typeStr = refInfo.type;
   const type = typeStr ? typeStr.trim().toLowerCase() : "$ref";
   let result = '';
@@ -33,12 +34,18 @@ function getTypedefStrLine(name, refInfo, leadStr) {
       result = objStrList.join('\n');
       break;
     case "array":
-      const arrType = refInfo.items.type;
+      let arrType = refInfo.items.type;
+      if(!arrType){
+        const refStrSpliteList = refInfo.items.$ref.split('/');
+        arrType = refStrSpliteList[refStrSpliteList.length-1];
+      }
       result = ` * @property {${translateType(arrType)}[]} ${leadStr+name}`;
       break;
     case "$ref":
       const refStrSpliteList = refInfo.$ref.split('/');
-      result = ` * @property {${refStrSpliteList[refStrSpliteList.length-1]}} ${leadStr+name}`;
+      const refRealStr = refStrSpliteList[refStrSpliteList.length-1];
+      result = ` * @property {${refRealStr.replace(/[«|»]/g, "_")}} ${leadStr+name}`;
+      break;
     default:
       result = ` * @property {${translateType(type)}} ${leadStr+name}`;
   }
@@ -52,19 +59,33 @@ function getTypedefStrLine(name, refInfo, leadStr) {
  */
 function getTypedefStr(ref, definitions) {
   const refInfo = definitions[ref];
+
   const refLead = getTypedefStrLine('', refInfo, '');
+
+  if(!refLead){
+    return '';
+  }
+
   return `
 /**
  * @typedef ${ref.replace(/[«|»]/g, "_")}
 ${refLead}
- */
-`
+ */`
+}
+
+function refParse(refStr){
+  const refInfo = /«(?<ref>.+)»$/.exec(refStr);
+  if(!refInfo) return [refStr];
+  if(refInfo.groups.ref){
+    return [refStr].concat(refParse(refInfo.groups.ref));
+  }
+  return [refStr];
 }
 
 function getParamsReturnLead(funDesc = "", parameters = [], responses, definitions) {
 
   const parameDocList = [];
-  const refs = [];
+  let refs = [];
 
   // 参数jsdoc解析
   parameters.forEach((item) => {
@@ -77,7 +98,7 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, definitio
       } else if (item.schema.$ref) {
         const refSplitList = item.schema.$ref.split('/');
         const refStr = refSplitList[refSplitList.length - 1];
-        refs.push(refStr);
+        refs = refs.concat(refParse(refStr));
         type = refStr.replace(/[«|»]/g, "_");
       }
     }
@@ -96,7 +117,7 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, definitio
     } else if (returnInfo.schema.$ref) {
       const returnRefSplitList = returnInfo.schema.$ref.split('/');
       const returnRefStr = returnRefSplitList[returnRefSplitList.length - 1];
-      refs.push(returnRefStr);
+      refs = refs.concat(refParse(returnRefStr));
       returnType = returnRefStr.replace(/[«|»]/g, "_");
     }
   }
@@ -118,10 +139,10 @@ ${parameDocList.join('\n')}
 
 /**
  * 名字
- * @param {*} funDesc
- * @param {*} parameters
- * @param {*} responses
- * @param {*} definitions
+ * @param {*} funDesc 方法描述
+ * @param {*} parameters 方法参数信息
+ * @param {*} responses 方法返回结果
+ * @param {*} definitions typedef的固定结构内容
  */
 function jsdocParse(funDesc, parameters, responses, definitions) {
   // TODO {yzy} 解析方法得换成另一种 递归解析的方式 否则无法完全解析出来
