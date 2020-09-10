@@ -6,13 +6,16 @@ const {
   getProjectRoot,
   readJSONFile,
   sendErrorMessage,
-  openSelect
+  openSelect,
+  writeFile
 } = require('../utils');
 const {
   getHttpRequest
 } = require('../request');
 const parse = require('../parse');
 
+const CONFIG_PATH = './duoduo/duoduo.request.json';
+const CATCH_PATH = './.vscode/duoduo';
 
 async function getOriginPick(config) {
   const originPickItems = config.origins.map((ori) => {
@@ -59,9 +62,6 @@ async function getServiceInfo(origin, service) {
   } = origin;
 
   const {label:serviceName,description:serviceAppId} = service;
-  const catchFilePath = Path.resolve(getProjectRoot(), originName, serviceName+'.json');
-  // 判断对应文件是否存在
-  const isCatch = FSExtra.existsSync(catchFilePath);
   // 获取信息
   const httpPath = originUrl+'docs'+'/'+serviceAppId
   const data = await getHttpRequest(httpPath);
@@ -87,7 +87,7 @@ async function activate(context) {
   let contextDisposable = vscode.commands.registerTextEditorCommand('duoduorequest.insertModuleRequest', async (textEditor, edit) => {
     try {
       const rootPath = getProjectRoot();
-      const config = await readJSONFile(Path.resolve(rootPath, './duoduo/duoduo.request.json'));
+      const config = await readJSONFile(Path.resolve(rootPath, CONFIG_PATH));
       // 确定本次获取的组织
       const origin = await getOriginPick(config);
       const {
@@ -96,10 +96,20 @@ async function activate(context) {
       } = origin;
       // 确定本次生成的服务
       const service = await getServicePick(services);
+
       // 获取接口信息
+      let interfaceInfo;
+      const catchFilePath = Path.resolve(rootPath,CATCH_PATH,service.description+'.json');
+      if(FSExtra.existsSync(catchFilePath)){
+        interfaceInfo = await readJSONFile(catchFilePath);
+      }else{
+        // 获取接口信息
       const serviceInfo = await getServiceInfo(origin,service);
       // 解析对应接口信息
-      const interfaceInfo = parse(serviceInfo,type);
+      interfaceInfo = parse(serviceInfo,type);
+      writeFile(catchFilePath,JSON.stringify(interfaceInfo));
+      }
+
       // 选择对应接口
       const {interfaceList} = interfaceInfo;
       const interfacePick = await getInterfacePick(interfaceList);

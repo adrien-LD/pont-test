@@ -47,6 +47,7 @@
 		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
+		"mkdirp": "^1.0.4",
 		"vscode-helpers": "^7.0.2"
 	}
 }
