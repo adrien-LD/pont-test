@@ -75,6 +75,8 @@ async function getTempPick(config){
   const temp = await openSelect(tempPickItems);
   const root = getProjectRoot();
   const path = Path.resolve(root,temp.path);
+  // 去除缓存
+  delete require.cache[require.resolve(path)];
   const func = require(path);
   return func;
 }
