@@ -42,7 +42,7 @@ function parameter2requestInfo(parameters) {
  * @param {string} method 方法类型
  * @param {string} path 路径
  * @param {Object} item 接口信息
- * @param {Object} definitions 类型定义
+ * @param {Object} defObject 类型定义
  */
 function funParseReal(method, path, item, defObject) {
   const {
@@ -54,7 +54,7 @@ function funParseReal(method, path, item, defObject) {
   } = item;
 
   // 解析出jsdoc
-  const leadDoc = jsdocParse(funDesc, parameters, responses, defObject )
+  const {paramsReturnLead:leadDoc,typedefNameList:depadences} = jsdocParse(funDesc, parameters, responses, defObject )
 
   // 转换params
   const funParams = parameters.map((paramItem) => ({
@@ -80,7 +80,8 @@ function funParseReal(method, path, item, defObject) {
     funDesc,
     consumes,
     method,
-    path
+    path,
+    depadences
   }
 }
 
@@ -127,6 +128,7 @@ function swagger2Parse(data) {
   return {
     basePath,
     interfaceList,
+    defObject
   }
 }
 

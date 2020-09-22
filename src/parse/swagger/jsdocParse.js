@@ -19,7 +19,7 @@ function deepStringify(refs,defObject,exist={}){
       const def = defObject[ref];
       exist[ref] = true;
       if(def){
-        result.push(def.defStr);
+        result.push(ref);
         result = deepStringify(def.dependenceList,defObject,exist).concat(result);
       }
     }
@@ -43,8 +43,8 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, defObject
       } else if (item.schema.$ref) {
         const refSplitList = item.schema.$ref.split('/');
         const refStr = refSplitList[refSplitList.length - 1];
-        refs.push(refStr);
         type = refStr.replace(/[«|»]/g, "_");
+        refs.push(type);
       }
     }
     const paramStr = ` * @param {${type}} ${item.name.replace(/-/g,'')} ${item.description}`
@@ -62,23 +62,22 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, defObject
     } else if (returnInfo.schema.$ref) {
       const returnRefSplitList = returnInfo.schema.$ref.split('/');
       const returnRefStr = returnRefSplitList[returnRefSplitList.length - 1];
-      refs.push(returnRefStr);
       returnType = returnRefStr.replace(/[«|»]/g, "_");
+      refs.push(returnType);
     }
   }
 
   // 被引用的typedef
-  const typedefStrList = deepStringify(refs,defObject);
+  const typedefNameList = deepStringify(refs,defObject);
 
   const paramsReturnLead = `
-${typedefStrList.join('\n')}
 /**
  * ${funDesc}
 ${parameDocList.join('\n')}
  * @returns {Promise<${returnType}>}
  */`
 
-  return paramsReturnLead;
+  return {paramsReturnLead,typedefNameList};
 }
 
 /**
@@ -90,8 +89,8 @@ ${parameDocList.join('\n')}
  */
 function jsdocParse(funDesc, parameters, responses, defObject) {
   // TODO {yzy} 解决map list等类型的问题 解决根据当前已有的typedef再来生成typedef的问题
-  const paramsReturnLead = getParamsReturnLead(funDesc, parameters, responses, defObject);
-  return paramsReturnLead
+  const {paramsReturnLead,typedefNameList} = getParamsReturnLead(funDesc, parameters, responses, defObject);
+  return {paramsReturnLead,typedefNameList}
 }
 
 module.exports = {

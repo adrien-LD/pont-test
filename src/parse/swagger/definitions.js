@@ -111,7 +111,7 @@ function definitionsParse(definitions) {
       const defInfo = definitions[defKey];
       const typedefObj = getTypedefObj(defKey, defInfo);
       if (typedefObj) {
-        result[defKey] = typedefObj;
+        result[defKey.replace(/[«|»]/g, "_")] = typedefObj;
       }
     }
   }
