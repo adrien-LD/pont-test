@@ -14,6 +14,7 @@ const {
 const parse = require('../parse');
 
 const CONFIG_PATH = './duoduo/duoduo.request.json';
+const DEFAULT_PARSE_PATH = './duoduo/duoduo.request.js';
 const CATCH_PATH = './.vscode/duoduo';
 
 async function getOriginPick(config) {
@@ -172,7 +173,64 @@ async function activate(context) {
 
   });
 
+  // 初始化配置
+  const initDisposable = vscode.commands.registerCommand('duoduorequest.insertConfig',async ()=>{
+    const rootPath = getProjectRoot();
+    const configPath = Path.resolve(rootPath, CONFIG_PATH);
+    const defaultParePath = Path.resolve(rootPath, DEFAULT_PARSE_PATH);
+    if(FSExtra.existsSync(configPath)) {
+      sendErrorMessage('配置文件已存在');
+      return;
+    }
+
+    writeFile(configPath,`{
+  "origins": [{
+    "name": "pet",
+    "type": "swagger2.0",
+    "originUrl": "http://swagger.fangdd.net/",
+    "services": [{
+      "name": "商服",
+      "appId": "a.esf.fdd",
+      "serve": "fdd-app-esf-service"
+    }]
+  }],
+  "temps": [{
+    "name": "Axios请求",
+    "path": "./duoduo/duoduo.request.js"
+  }]
+}
+`);
+
+  writeFile(defaultParePath,
+`module.exports = function({
+  headers=[],
+  body=[],
+  params=[],
+  funParams = [],
+  leadDoc,
+  funName,
+  funDesc,
+  consumes,
+  method,
+  path
+}){
+
+  const paramsStrList = funParams.map((item)=>item.name.replace(/-/g,''));
+  return \`
+\${leadDoc}
+export async function \${funName}(\${paramsStrList.join(', ')}){
+  return new Promise((resolve,reject)=>{
+    axios({
+      path: "\${path}",
+      method: "\${method}",
+    })
+  })
+}
+  \`
+}`);
+  })
   context.subscriptions.push(contextDisposable);
+  context.subscriptions.push(initDisposable);
 }
 
 module.exports = activate;

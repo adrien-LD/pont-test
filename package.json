@@ -14,20 +14,19 @@
 	],
 	"main": "./src/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "duoduorequest.insertModuleRequest",
-				"title": "插入请求模板"
-			}
-		],
+		"commands": [{
+			"command": "duoduorequest.insertModuleRequest",
+			"title": "插入请求模板"
+		}, {
+			"command": "duoduorequest.insertConfig",
+			"title": "duoduorequest:init"
+		}],
 		"menus": {
-			"editor/context": [
-				{
-					"when": "resourceLangId == javascript",
-					"command": "duoduorequest.insertModuleRequest",
-					"group": "navigation"
-				}
-			]
+			"editor/context": [{
+				"when": "resourceLangId == javascript",
+				"command": "duoduorequest.insertModuleRequest",
+				"group": "navigation"
+			}]
 		}
 	},
 	"scripts": {
