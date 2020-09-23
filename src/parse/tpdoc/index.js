@@ -60,7 +60,7 @@ function parseInterfaceReal(api = {}, defObject) {
   const path = paths.length ? paths[0] : '';
 
   const funParams = requestParams.map((paramItem) => ({
-    name: paramItem.entityName,
+    name: paramItem.name,
     required: paramItem.required
   }))
 
