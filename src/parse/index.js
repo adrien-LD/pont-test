@@ -1,7 +1,9 @@
 const { swagger2Parse } = require("./swagger");
+const { tpdocParse } = require("./tpdoc");
 
 const parseMap = {
-  "swagger2.0":swagger2Parse
+  "swagger2.0":swagger2Parse,
+  "tp-doc": tpdocParse,
 }
 
 /**

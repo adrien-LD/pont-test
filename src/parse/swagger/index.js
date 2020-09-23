@@ -103,9 +103,13 @@ function funParse(path, pathItem, defObject) {
   return result;
 }
 
-
+/**
+ * swagger2.0版本接口解析
+ * @param {object} data 请求接口后的参数
+ * @returns {import("..").ParseInfo}
+ */
 function swagger2Parse(data) {
-  if (!data) return [];
+  if (!data) return;
 
   const {
     basePath,

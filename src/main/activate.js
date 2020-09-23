@@ -12,6 +12,10 @@ const {
   getHttpRequest
 } = require('../request');
 const parse = require('../parse');
+const {
+  PROJECT_FUNCTION,
+  PROJECT_CONFIG
+} = require('../config');
 
 const CONFIG_PATH = './duoduo/duoduo.request.json';
 const DEFAULT_PARSE_PATH = './duoduo/duoduo.request.js';
@@ -58,15 +62,31 @@ async function getInterfacePick(interfaceList) {
 async function getServiceInfo(origin, service) {
   const {
     label: originName,
-    description: originUrl
+    description: originUrl,
+    type,
   } = origin;
 
   const {
     label: serviceName,
-    description: serviceAppId
+    description: serviceAppId,
+    detail: serviceServe,
   } = service;
   // 获取信息
-  const httpPath = originUrl + 'docs' + '/' + serviceAppId
+  let httpPath;
+  if (type.trim().toLowerCase() === 'swagger2.0') {
+    httpPath = originUrl + 'docs' + '/' + serviceAppId;
+  }
+  switch (type.trim().toLowerCase()) {
+    case 'swagger2.0':
+      httpPath = originUrl + 'docs' + '/' + serviceAppId;
+      break;
+    case 'tp-doc':
+      httpPath = originUrl + 'api/doc/' + serviceServe+':'+serviceAppId+'/';
+      break;
+
+    default:
+      throw new Error('配置文件有误，请重新初始化！');
+  }
   const data = await getHttpRequest(httpPath);
   return data;
 }
@@ -101,13 +121,13 @@ function getInterfaceUnExistDepandenceDocStr(dependences, fileText, defObject) {
   const results = [];
   lines.forEach((line) => {
     const lineInfo = (/\*\s+\@typedef\s+(?<type>\S*).*$/g).exec(line);
-    if(lineInfo){
+    if (lineInfo) {
       existList.push(lineInfo.groups.type);
     }
   });
 
-  dependences.forEach((dep)=>{
-    if(!existList.includes(dep)){
+  dependences.forEach((dep) => {
+    if (!existList.includes(dep)) {
       results.push(defObject[dep].defStr);
     }
   })
@@ -174,60 +194,18 @@ async function activate(context) {
   });
 
   // 初始化配置
-  const initDisposable = vscode.commands.registerCommand('duoduorequest.insertConfig',async ()=>{
+  const initDisposable = vscode.commands.registerCommand('duoduorequest.insertConfig', async () => {
     const rootPath = getProjectRoot();
     const configPath = Path.resolve(rootPath, CONFIG_PATH);
     const defaultParePath = Path.resolve(rootPath, DEFAULT_PARSE_PATH);
-    if(FSExtra.existsSync(configPath)) {
+    if (FSExtra.existsSync(configPath)) {
       sendErrorMessage('配置文件已存在');
       return;
     }
 
-    writeFile(configPath,`{
-  "origins": [{
-    "name": "pet",
-    "type": "swagger2.0",
-    "originUrl": "http://swagger.fangdd.net/",
-    "services": [{
-      "name": "商服",
-      "appId": "a.esf.fdd",
-      "serve": "fdd-app-esf-service"
-    }]
-  }],
-  "temps": [{
-    "name": "Axios请求",
-    "path": "./duoduo/duoduo.request.js"
-  }]
-}
-`);
+    writeFile(configPath, PROJECT_CONFIG);
 
-  writeFile(defaultParePath,
-`module.exports = function({
-  headers=[],
-  body=[],
-  params=[],
-  funParams = [],
-  leadDoc,
-  funName,
-  funDesc,
-  consumes,
-  method,
-  path
-}){
-
-  const paramsStrList = funParams.map((item)=>item.name.replace(/-/g,''));
-  return \`
-\${leadDoc}
-export async function \${funName}(\${paramsStrList.join(', ')}){
-  return new Promise((resolve,reject)=>{
-    axios({
-      path: "\${path}",
-      method: "\${method}",
-    })
-  })
-}
-  \`
-}`);
+    writeFile(defaultParePath, PROJECT_FUNCTION);
   })
   context.subscriptions.push(contextDisposable);
   context.subscriptions.push(initDisposable);
