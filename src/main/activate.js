@@ -6,7 +6,8 @@ const {
   readJSONFile,
   sendErrorMessage,
   openSelect,
-  writeFile
+  writeFile,
+  sendMessage
 } = require('../utils');
 const {
   getHttpRequest
@@ -16,10 +17,12 @@ const {
   PROJECT_FUNCTION,
   PROJECT_CONFIG
 } = require('../config');
+const packageInfo = require('../../package.json');
 
 const CONFIG_PATH = './duoduo/duoduo.request.json';
 const DEFAULT_PARSE_PATH = './duoduo/duoduo.request.js';
-const CATCH_PATH = './.vscode/duoduo';
+const BASE_CATCH_PATH = './.vscode/duoduo';
+const CATCH_PATH = BASE_CATCH_PATH+'/v'+packageInfo.version;
 
 async function getOriginPick(config) {
   const originPickItems = config.origins.map((ori) => {
@@ -221,8 +224,20 @@ async function activate(context) {
 
     writeFile(defaultParePath, PROJECT_FUNCTION);
   })
+
+  // 清除缓存
+  const cleanDisposable = vscode.commands.registerCommand('duoduorequest.cleanCatch', async ()=>{
+    const rootPath = getProjectRoot();
+    const cleanPath = Path.resolve(rootPath, BASE_CATCH_PATH);
+
+    FSExtra.removeSync(cleanPath);
+
+    sendMessage('缓存清除成功！');
+  })
+
   context.subscriptions.push(contextDisposable);
   context.subscriptions.push(initDisposable);
+  context.subscriptions.push(cleanDisposable);
 }
 
 module.exports = activate;
