@@ -19,10 +19,10 @@
 			"title": "插入请求模板"
 		}, {
 			"command": "duoduorequest.insertConfig",
-			"title": "duoduorequest:init"
+			"title": "duoduorequest: init"
 		}, {
 			"command": "duoduorequest.cleanCatch",
-			"title": "duoduorequest:clean catch"
+			"title": "duoduorequest: clean catch"
 		}],
 		"menus": {
 			"editor/context": [{

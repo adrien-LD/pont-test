@@ -1,65 +1,25 @@
-# duoduorequest README
+# duoduorequest
 
-This is the README for your extension "duoduorequest". After writing up a brief description, we recommend including the following sections.
+支持通过解析swagger2.0、tp-doc等接口文档自动生成接口代码。通过jsdoc的方式提供类型。
+
+## 使用
+
+duoduorequest: init 命令：
+
+初始化插件，在项目中生成.duoduo文件夹。并在其中写下配置文件和一个模板生成文件样例。
+
+duoduorequest: cleanCatch 命令：
+
+清除缓存，每一次生成接口代码时都会将获取到的内容缓存下来，当接口文档被更新后需要清除缓存之后再去生成。
+
+右键：插入请求模板 命令：
+
+右键菜单中：插入请求模板。会根据配置来请求接口文档并解析，最后通过你编写的模板生成文件来生成插入的接口代码。
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+1. 对Map类型尚未支持
+2. 当接口文档更新后很难对接口的jsdoc注释也进行对应更新。(可以通过选中对应的typedef，然后对比id确定是否更新了，这样需要保留原始的id)
+3. tpdoc类型里，所有类型会是一整个包，名称太长了。
+4. 在某些参数中会存在- 横杠，这在js当中是不允许的，这有点难处理。
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
