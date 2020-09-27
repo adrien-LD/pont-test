@@ -1,12 +1,22 @@
-const PROJECT_CONFIG = `{
+const PROJECT_CONFIG =
+`{
   "origins": [{
-    "name": "pet",
+    "name": "上海",
     "type": "swagger2.0",
     "originUrl": "http://swagger.fangdd.net/",
     "services": [{
       "name": "商服",
       "appId": "a.esf.fdd",
       "serve": "fdd-app-esf-service"
+    }]
+  }, {
+    "name": "TP-DOC",
+    "type": "tp-doc",
+    "originUrl": "http://tp-doc.fangdd.net/",
+    "services": [{
+      "name": "多多直播",
+      "appId": "ap-realtor-live-server",
+      "serve": "com.fangdd.ap"
     }]
   }],
   "temps": [{
@@ -16,7 +26,8 @@ const PROJECT_CONFIG = `{
 }
 `;
 
-const PROJECT_FUNCTION = `module.exports = function({
+const PROJECT_FUNCTION =
+`module.exports = function({
   headers=[],
   body=[],
   params=[],
@@ -37,6 +48,7 @@ export async function \${funName}(\${paramsStrList.join(', ')}){
     axios({
       path: "\${path}",
       method: "\${method}",
+      data: "\${body.map((item)=>(item))}"
     })
   })
 }

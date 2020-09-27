@@ -7,6 +7,9 @@ function deepStringify(refs, defObject, exist = {}) {
   refs.forEach((ref) => {
     if (!exist[ref]) {
       const def = defObject[ref];
+      if(ref == 'com.fangdd.common.basic.CommonResponse_com.fangdd.ap.live.server.web.response.QueryLiveRoomDetailResponse_'){
+        console.log(111)
+      }
       exist[ref] = true;
       if (def) {
         result.push(ref);
@@ -27,7 +30,7 @@ function deepStringify(refs, defObject, exist = {}) {
 function jsdocParse(funDesc, parameters, responses, defObject) {
 
   const parameDocList = [];
-  const refs = [];
+  let refs = [];
 
   // 参数jsdoc解析
   parameters.forEach((item) => {
@@ -35,14 +38,18 @@ function jsdocParse(funDesc, parameters, responses, defObject) {
     const {
       entityName
     } = item;
-    type = translateType(entityName);
-    refs.push(type);
-    const paramStr = ` * @param {${type}} ${item.name.replace(/-/g,'')} ${item.comment}`
+    const typeResult = translateType(entityName)
+    type = typeResult.type;
+    refs.push(type.replace(/[<|>]/g, "_"));
+    refs = refs.concat(typeResult.dependence);
+    const paramStr = ` * @param {${type.replace(/[<|>]/g, "_")}} ${item.name.replace(/-/g,'')} ${item.comment}`
     parameDocList.push(paramStr);
   });
 
-  const returnType = translateType(responses.entityName);
+  const returnTypeResult = translateType(responses.entityName);
+  const returnType = returnTypeResult.type.replace(/[<|>]/g, "_");
   refs.push(returnType);
+  refs = refs.concat(returnTypeResult.dependence);
 
   // 被引用的typedef
   const typedefNameList = deepStringify(refs, defObject);

@@ -4,24 +4,46 @@ const {
 
 
 function translateType(type) {
-  if (!type) return 'any'
+  if (!type) return {type:'any',dependence:[]};
+  let result = type;
+  let dependence=[];
   const typeReal = type.trim().toLowerCase();
   switch (typeReal) {
+    case 'int':
+    case 'float':
+    case 'double':
+    case 'long':
     case 'java.lang.long':
     case 'java.lang.integer':
     case 'java.lang.float':
     case 'java.lang.double':
-      return 'number';
+      result = 'number';
+      break;
     case 'java.lang.string':
-      return 'String';
+      result = 'String';
+      break;
     case 'java.lang.boolean':
-      return 'boolean';
+      result = 'boolean';
+      break;
     case 'java.lang.void':
-      return 'void';
+      result = 'void';
+      break;
     default:
       break;
   }
-  return type;
+  if(/^java.util.List<(?<generic>.+)>/g.test(type)){
+    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type);
+    if(reg.groups){
+      const insideType = reg.groups.generic;
+      const mResult = translateType(insideType);
+      if(mResult.type===insideType){
+        dependence.push(insideType);
+      }
+      dependence = dependence.concat(mResult.dependence);
+      result = `${mResult.type}[]`;
+    }
+  }
+  return {type:result,dependence};
 }
 
 function getTypedefStrLine(refInfo) {
@@ -30,7 +52,7 @@ function getTypedefStrLine(refInfo) {
     fields = [], parameteredEntityRefs = []
   } = refInfo;
   const refLeadList = [];
-  const dependenceList = [];
+  let dependenceList = [];
 
   fields.forEach((field) => {
     const {
@@ -38,17 +60,21 @@ function getTypedefStrLine(refInfo) {
       name,
       comment
     } = field;
-    const type = translateType(entityName);
+    const typeResult = translateType(entityName);
     const _comment = comment ? ' '+comment.trim() : '';
-    refLeadList.push(` * @property {${type}} ${name}${_comment}`);
+    refLeadList.push(` * @property {${typeResult.type}} ${name}${_comment}`);
+    if(entityName===typeResult.type){
+      dependenceList.push(typeResult.type);
+    }
+    dependenceList = dependenceList.concat(typeResult.dependence)
   });
 
   parameteredEntityRefs.forEach((depend) => {
     const {
       entityName
     } = depend;
-    const name = entityName.trim().toLowerCase();
-    if (name === translateType(name)) {
+    const name = entityName;
+    if (name === translateType(name).type) {
       dependenceList.push(name);
     }
   })
@@ -79,7 +105,7 @@ function getTypedefObj(ref, refInfo) {
 
   const defStr = `
 /**
- * @typedef ${ref}${comment}
+ * @typedef ${ref.replace(/[<|>]/g, "_")}${comment}
 ${refLead}
  */`;
 
@@ -94,7 +120,7 @@ function definitionsParse(definitions = []) {
   const result = {};
 
   definitions.forEach((def) => {
-    result[def.name] = getTypedefObj(def.name, def)
+    result[def.name.replace(/[<|>]/g, "_")] = getTypedefObj(def.name, def)
   })
   return result;
 }

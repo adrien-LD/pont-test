@@ -17,7 +17,7 @@ function parameter2requestInfo(parameters){
       name,
       description:comment,
       required,
-      type:translateType(type)
+      type:translateType(type).type
     }
     switch (annotation) {
       case "@RequestHeader":
