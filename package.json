@@ -1,8 +1,10 @@
 {
 	"name": "duoduorequest",
 	"displayName": "DuoDuoRequest",
-	"description": "",
+	"description": "swagger,tp-doc request code generate",
+	"publisher": "demonskp",
 	"version": "0.1.1",
+	"keywords": ["vscode", "plugin", "swagger", "tp-doc"],
 	"engines": {
 		"vscode": "^1.48.0"
 	},
@@ -12,6 +14,7 @@
 	"activationEvents": [
 		"*"
 	],
+	"icon": "doc/images/icon.png",
 	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [{

@@ -3,7 +3,7 @@ const PROJECT_CONFIG =
   "origins": [{
     "name": "上海",
     "type": "swagger2.0",
-    "originUrl": "http://swagger.fangdd.net/",
+    "originUrl": "http://swagger.xxx.net/",
     "services": [{
       "name": "商服",
       "appId": "a.esf.fdd",
@@ -12,7 +12,7 @@ const PROJECT_CONFIG =
   }, {
     "name": "TP-DOC",
     "type": "tp-doc",
-    "originUrl": "http://tp-doc.fangdd.net/",
+    "originUrl": "http://tp-doc.xxx.net/",
     "services": [{
       "name": "多多直播",
       "appId": "ap-realtor-live-server",
