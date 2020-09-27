@@ -27,7 +27,30 @@ const PROJECT_CONFIG =
 `;
 
 const PROJECT_FUNCTION =
-`module.exports = function({
+`
+/**
+ * @typedef Type 类型
+ * @property {string} name 类型名
+ * @property {string} description 类型描述
+ * @property {string} required 是否必须
+ * @property {string} type 类型
+ * @property {string} schema 结构信息
+ */
+
+/**
+ * 接口方法生成模板
+ * @param {Object} param0
+ * @param {Type[]} param0.headers 请求头参数列表
+ * @param {Type[]} param0.body 请求体参数列表
+ * @param {Type[]} param0.params 请求参数列表
+ * @param {Type[]} param0.funParams 所有参数集合
+ * @param {string} param0.leadDoc 头部注释
+ * @param {string} param0.funName 接口方法名
+ * @param {string} param0.funDesc 接口描述
+ * @param {string} param0.method 接口类型
+ * @param {string} param0.path 接口路径
+ */
+module.exports = function({
   headers=[],
   body=[],
   params=[],
@@ -35,7 +58,6 @@ const PROJECT_FUNCTION =
   leadDoc,
   funName,
   funDesc,
-  consumes,
   method,
   path
 }){
@@ -48,11 +70,13 @@ export async function \${funName}(\${paramsStrList.join(', ')}){
     axios({
       path: "\${path}",
       method: "\${method}",
-      data: "\${body.map((item)=>(item))}"
+      data: "\${body.map((item)=>(item))}",
+      headers: [],
+      params: []
     })
   })
 }
-  \`
+\`
 }`;
 
 

@@ -110,6 +110,20 @@ async function getTempPick(config) {
 }
 
 /**
+ * 执行模板方法
+ * @param {Function} fun 模板方法
+ * @param {any} param 方法参数
+ */
+function execTempFun(fun, param){
+  try {
+    const result = fun(param);
+    return result;
+  } catch (error) {
+    throw new Error('模板文件错误:'+error.toString());
+  }
+}
+
+/**
  * 获取当前文件不存在的依赖的doc字符串
  * @param {object[]} dependences 依赖列表
  * @param {String} fileText 当前文件的内容
@@ -184,11 +198,11 @@ async function activate(context) {
       // 根据当前文件情况处理接口信息
       inter.leadDoc = getInterfaceUnExistDepandenceDocStr(inter.depadences, textEditor.document.getText(), interfaceInfo.defObject) + inter.leadDoc;
       // 根据选择的模板生成字符串
-      const insertStr = tempFunc(inter);
+      const insertStr = execTempFun(tempFunc, inter);
       // 将字符串插入当前位置
       textEditor.insertSnippet(new vscode.SnippetString(insertStr))
     } catch (err) {
-      sendErrorMessage(err);
+      sendErrorMessage(err.toString());
     }
 
   });
