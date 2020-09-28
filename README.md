@@ -1,12 +1,14 @@
 # duoduorequest
 
-支持通过解析swagger2.0、tp-doc等接口文档自动生成接口代码。通过jsdoc的方式提供类型。
+VSCode插件 DuoDuoRequest 测试版现已发布。在VSCode 插件商店当中搜索DuoDuoRequest即可找到。
+
+DuoDuoRequest允许你通过配置swagger或者TP-DOC文档接口，配合一个模板方法来自由便捷的插入指定接口代码，并生成jsdoc注释以此提供便捷的代码提示。
 
 ## 使用
 
 duoduorequest: init 命令：
 
-初始化插件，在项目中生成.duoduo文件夹。并在其中写下配置文件和一个模板生成文件样例。
+初始化插件，在项目中生成.duoduo文件夹。并在其中写下配置文件和一个模板生成文件样例(按照项目的实际情况修改配置文件)。
 
 duoduorequest: cleanCatch 命令：
 
