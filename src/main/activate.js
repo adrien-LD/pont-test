@@ -153,6 +153,25 @@ function getInterfaceUnExistDepandenceDocStr(dependences, fileText, defObject) {
 }
 
 /**
+ * 获取所有的typedef
+ * @param {Object} defObject 类型定义对象
+ */
+function getAllTypeDefStr(defObject){
+  const resultList = [];
+
+  for (const key in defObject) {
+    if (defObject.hasOwnProperty(key)) {
+      if(defObject[key]){
+        const element = defObject[key].defStr;
+        resultList.push(element);
+      }
+    }
+  }
+
+  return resultList.join('\n');
+}
+
+/**
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
@@ -199,7 +218,7 @@ async function activate(context) {
       // 选择对应的模板
       const tempFunc = await getTempPick(config);
       // 根据当前文件情况处理接口信息
-      inter.leadDoc = getInterfaceUnExistDepandenceDocStr(inter.depadences, textEditor.document.getText(), interfaceInfo.defObject) + inter.leadDoc;
+      inter.typeRefStr = getInterfaceUnExistDepandenceDocStr(inter.depadences, textEditor.document.getText(), interfaceInfo.defObject);
       // 根据选择的模板生成字符串
       const insertStr = execTempFun(tempFunc, inter);
       // 将字符串插入当前位置
@@ -235,9 +254,52 @@ async function activate(context) {
     sendMessage('缓存清除成功！');
   })
 
+  // 插入所有typedef
+  const allTypedefDisposable = vscode.commands.registerCommand('duoduorequest.insertAllTypedef', async ()=>{
+    try {
+      const textEditor = vscode.window.activeTextEditor;
+      const rootPath = getProjectRoot();
+      const config = await readJSONFile(Path.resolve(rootPath, CONFIG_PATH));
+      // 确定本次获取的组织
+      const origin = await getOriginPick(config);
+      const {
+        type,
+        services
+      } = origin;
+      // 确定本次生成的服务
+      const service = await getServicePick(services);
+
+      // 获取接口信息
+      /**
+       * @type {import('../parse').ParseInfo}
+       */
+      let interfaceInfo;
+      const catchFilePath = Path.resolve(rootPath, CATCH_PATH, service.description + '.json');
+      if (FSExtra.existsSync(catchFilePath)) {
+        interfaceInfo = await readJSONFile(catchFilePath);
+      } else {
+        // 获取接口信息
+        const serviceInfo = await getServiceInfo(origin, service);
+        // 解析对应接口信息
+        interfaceInfo = parse(serviceInfo, type);
+        // 存储接口信息
+        writeFile(catchFilePath, JSON.stringify(interfaceInfo));
+      }
+
+      const {defObject} = interfaceInfo;
+      // 所有typedef
+      const allTypedefStr = getAllTypeDefStr(defObject);
+      // 插入到当前位置
+      textEditor.insertSnippet(new vscode.SnippetString(allTypedefStr));
+    } catch (err) {
+      sendErrorMessage(err.toString());
+    }
+
+  })
   context.subscriptions.push(contextDisposable);
   context.subscriptions.push(initDisposable);
   context.subscriptions.push(cleanDisposable);
+  context.subscriptions.push(allTypedefDisposable);
 }
 
 module.exports = activate;

@@ -22,6 +22,7 @@ const parseMap = {
  * @property {Type[]} params 请求参数列表
  * @property {Type[]} funParams 所有参数集合
  * @property {string} leadDoc 头部注释
+ * @property {string} typeRefStr 类型定义(插入时生成的)
  * @property {string} funName 接口方法名
  * @property {string} funDesc 借口描述
  * @property {string} method 接口类型

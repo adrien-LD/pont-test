@@ -45,6 +45,7 @@ const PROJECT_FUNCTION =
  * @param {Type[]} param0.params 请求参数列表
  * @param {Type[]} param0.funParams 所有参数集合
  * @param {string} param0.leadDoc 头部注释
+ * @param {string} param0.typeRefStr 类型定义
  * @param {string} param0.funName 接口方法名
  * @param {string} param0.funDesc 接口描述
  * @param {string} param0.method 接口类型
@@ -56,6 +57,7 @@ module.exports = function({
   params=[],
   funParams = [],
   leadDoc,
+  typeRefStr,
   funName,
   funDesc,
   method,
@@ -64,6 +66,7 @@ module.exports = function({
 
   const paramsStrList = funParams.map((item)=>item.name.replace(/-/g,''));
   return \`
+\${typeRefStr}
 \${leadDoc}
 export async function \${funName}(\${paramsStrList.join(', ')}){
   return new Promise((resolve,reject)=>{

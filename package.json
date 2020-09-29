@@ -21,6 +21,9 @@
 			"command": "duoduorequest.insertModuleRequest",
 			"title": "插入请求模板"
 		}, {
+			"command": "duoduorequest.insertAllTypedef",
+			"title": "duoduorequest: insert all typedef"
+		}, {
 			"command": "duoduorequest.insertConfig",
 			"title": "duoduorequest: init"
 		}, {
