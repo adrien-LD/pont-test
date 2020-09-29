@@ -3,7 +3,7 @@
 	"displayName": "DuoDuoRequest",
 	"description": "swagger,tp-doc request code generate",
 	"publisher": "demonskp",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"keywords": ["vscode", "plugin", "swagger", "tp-doc"],
 	"engines": {
 		"vscode": "^1.48.0"
