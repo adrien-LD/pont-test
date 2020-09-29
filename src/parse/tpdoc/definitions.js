@@ -43,6 +43,19 @@ function translateType(type) {
       result = `${mResult.type}[]`;
     }
   }
+
+  if(/^java.util.Map<(?<generic1>.+), (?<generic2>.+)>/g.test(type)){
+    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type);
+    if(reg.groups){
+      const insideType2 = reg.groups.generic2;
+      const mResult = translateType(insideType2);
+      if(mResult.type===insideType2){
+        dependence.push(insideType2);
+      }
+      dependence = dependence.concat(mResult.dependence);
+      result = `Map<string, ${mResult.type}>`;
+    }
+  }
   return {type:result,dependence};
 }
 

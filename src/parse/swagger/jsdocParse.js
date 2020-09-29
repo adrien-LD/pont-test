@@ -43,7 +43,7 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, defObject
       } else if (item.schema.$ref) {
         const refSplitList = item.schema.$ref.split('/');
         const refStr = refSplitList[refSplitList.length - 1];
-        type = refStr.replace(/[«|»]/g, "_");
+        type = refStr.replace(/[«|»|,]/g, "_");
         refs.push(type);
       }
     }
@@ -62,7 +62,7 @@ function getParamsReturnLead(funDesc = "", parameters = [], responses, defObject
     } else if (returnInfo.schema.$ref) {
       const returnRefSplitList = returnInfo.schema.$ref.split('/');
       const returnRefStr = returnRefSplitList[returnRefSplitList.length - 1];
-      returnType = returnRefStr.replace(/[«|»]/g, "_");
+      returnType = returnRefStr.replace(/[«|»|,]/g, "_");
       refs.push(returnType);
     }
   }
