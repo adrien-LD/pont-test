@@ -3,7 +3,7 @@
 	"displayName": "DuoDuoRequest",
 	"description": "swagger,tp-doc request code generate",
 	"publisher": "demonskp",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"keywords": ["vscode", "plugin", "swagger", "tp-doc"],
 	"engines": {
 		"vscode": "^1.48.0"
@@ -39,6 +39,7 @@
 		}
 	},
 	"scripts": {
+		"publish": "vsce publish",
 		"lint": "eslint .",
 		"pretest": "yarn run lint",
 		"test": "node ./test/runTest.js"
