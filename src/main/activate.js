@@ -34,6 +34,9 @@ async function getOriginPick(config) {
     }
   })
   const origin = await openSelect(originPickItems);
+  if(!origin){
+    throw new Error('组织选择被取消');
+  }
   return origin;
 }
 
@@ -46,6 +49,9 @@ async function getServicePick(services) {
     }
   });
   const service = await openSelect(servicePickItems);
+  if(!service){
+    throw new Error('服务选择被取消');
+  }
   return service;
 }
 
@@ -59,6 +65,9 @@ async function getInterfacePick(interfaceList) {
     }
   });
   const interfaceInfo = await openSelect(interfacePickItems);
+  if(!interfaceInfo){
+    throw new Error('接口选择被取消');
+  }
   return interfaceInfo;
 }
 
@@ -104,11 +113,17 @@ async function getTempPick(config) {
     path: item.path
   }));
   const temp = await openSelect(tempPickItems);
+
+  if(!temp){
+    throw new Error('模板选择被取消');
+  }
+
   const root = getProjectRoot();
   const path = Path.resolve(root, temp.path);
   // 去除缓存
   delete require.cache[require.resolve(path)];
   const func = require(path);
+
   return func;
 }
 

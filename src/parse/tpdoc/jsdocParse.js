@@ -7,9 +7,6 @@ function deepStringify(refs, defObject, exist = {}) {
   refs.forEach((ref) => {
     if (!exist[ref]) {
       const def = defObject[ref];
-      if(ref == 'com.fangdd.common.basic.CommonResponse_com.fangdd.ap.live.server.web.response.QueryLiveRoomDetailResponse_'){
-        console.log(111)
-      }
       exist[ref] = true;
       if (def) {
         result.push(ref);
