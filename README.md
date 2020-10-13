@@ -26,3 +26,7 @@ duoduorequest: insert all typedef 命令：
 
 1. 在某些参数中会存在- 横杠，这在js当中是不允许的，这有点难处理。
 
+## 已知BUG
+
+1. 在第一次请求数据时，时常会失败。
+
