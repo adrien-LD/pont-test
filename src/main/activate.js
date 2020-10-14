@@ -45,7 +45,8 @@ async function getServicePick(services) {
     return {
       label: serv.name,
       description: serv.appId,
-      detail: serv.serve
+      detail: serv.serve,
+      old: {...serv}
     }
   });
   const service = await openSelect(servicePickItems);
@@ -232,6 +233,8 @@ async function activate(context) {
       } = interfacePick;
       // 选择对应的模板
       const tempFunc = await getTempPick(config);
+      // 将所选服务配置添加进去
+      inter.serviceConfig = service.old;
       // 根据当前文件情况处理接口信息
       inter.typeRefStr = getInterfaceUnExistDepandenceDocStr(inter.depadences, textEditor.document.getText(), interfaceInfo.defObject);
       // 根据选择的模板生成字符串

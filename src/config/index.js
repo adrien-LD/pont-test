@@ -50,6 +50,7 @@ const PROJECT_FUNCTION =
  * @param {string} param0.funDesc 接口描述
  * @param {string} param0.method 接口类型
  * @param {string} param0.path 接口路径
+ * @param {Object} param0.serviceConfig 所选服务的配置项
  */
 module.exports = function({
   headers=[],
@@ -61,7 +62,8 @@ module.exports = function({
   funName,
   funDesc,
   method,
-  path
+  path,
+  serviceConfig
 }){
 
   const paramsStrList = funParams.map((item)=>item.name.replace(/-/g,''));
@@ -73,9 +75,6 @@ export async function \${funName}(\${paramsStrList.join(', ')}){
     axios({
       path: "\${path}",
       method: "\${method}",
-      data: "\${body.map((item)=>(item))}",
-      headers: [],
-      params: []
     })
   })
 }
