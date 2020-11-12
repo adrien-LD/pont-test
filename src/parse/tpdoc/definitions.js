@@ -32,7 +32,7 @@ function translateType(type) {
       break;
   }
   if(/^java.util.List<(?<generic>.+)>/g.test(type)){
-    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type);
+    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type)||{};
     if(reg.groups){
       const insideType = reg.groups.generic;
       const mResult = translateType(insideType);
@@ -45,7 +45,7 @@ function translateType(type) {
   }
 
   if(/^java.util.Map<(?<generic1>.+), (?<generic2>.+)>/g.test(type)){
-    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type);
+    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type)||{};
     if(reg.groups){
       const insideType2 = reg.groups.generic2;
       const mResult = translateType(insideType2);
