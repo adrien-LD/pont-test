@@ -1,0 +1,22 @@
+{
+  "react":{
+    "prefix": "dd-ipt",
+    "body":[
+      "import React from 'react';",
+      "ipt${0}"
+    ],
+    "description": "导入react"
+  },
+  "新函数组件":{
+    "prefix": "dd-expdf",
+    "body":[
+      "import React from 'react';",
+      "import styles from './index.less';",
+      "",
+      "export default function ${1:funName}(${2:props}) {",
+      "\t$0",
+      "}",
+      ""
+    ]
+  }
+}

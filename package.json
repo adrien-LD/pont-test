@@ -36,7 +36,11 @@
 				"command": "duoduorequest.insertModuleRequest",
 				"group": "navigation"
 			}]
-		}
+		},
+		"snippets": [{
+			"language": "javascriptreact",
+			"path": "./snippets/base.json"
+		}]
 	},
 	"scripts": {
 		"publish": "vsce publish",
