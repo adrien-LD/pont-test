@@ -3,7 +3,7 @@
     "prefix": "dd-ipt",
     "body":[
       "import React from 'react';",
-      "ipt${0}"
+      "${0}"
     ],
     "description": "导入react"
   },
