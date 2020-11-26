@@ -1,66 +1,91 @@
 {
-	"name": "duoduorequest",
-	"displayName": "DuoDuoRequest",
-	"description": "swagger,tp-doc request code generate",
-	"publisher": "demonskp",
-	"version": "0.1.7",
-	"keywords": ["vscode", "plugin", "swagger", "tp-doc"],
-	"engines": {
-		"vscode": "^1.48.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"icon": "doc/images/icon.png",
-	"main": "./src/extension.js",
-	"contributes": {
-		"commands": [{
-			"command": "duoduorequest.insertModuleRequest",
-			"title": "插入请求模板"
-		}, {
-			"command": "duoduorequest.insertAllTypedef",
-			"title": "duoduorequest: insert all typedef"
-		}, {
-			"command": "duoduorequest.insertConfig",
-			"title": "duoduorequest: init"
-		}, {
-			"command": "duoduorequest.cleanCatch",
-			"title": "duoduorequest: clean catch"
-		}],
-		"menus": {
-			"editor/context": [{
-				"when": "resourceLangId == javascript",
-				"command": "duoduorequest.insertModuleRequest",
-				"group": "navigation"
-			}]
-		},
-		"snippets": [{
-			"language": "javascriptreact",
-			"path": "./snippets/base.json"
-		}]
-	},
-	"scripts": {
-		"publish": "vsce publish",
-		"lint": "eslint .",
-		"pretest": "yarn run lint",
-		"test": "node ./test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.3",
-		"@types/mocha": "^8.0.0",
-		"@types/node": "^14.6.4",
-		"@types/vscode": "^1.48.0",
-		"eslint": "^7.6.0",
-		"glob": "^7.1.6",
-		"mocha": "^8.1.3",
-		"typescript": "^4.0.2",
-		"vscode-test": "^1.4.0"
-	},
-	"dependencies": {
-		"mkdirp": "^1.0.4",
-		"vscode-helpers": "^7.0.2"
-	}
+  "name": "duoduorequest",
+  "displayName": "DuoDuoRequest",
+  "description": "swagger,tp-doc request code generate",
+  "publisher": "demonskp",
+  "version": "0.1.7",
+  "keywords": [
+    "vscode",
+    "plugin",
+    "swagger",
+    "tp-doc"
+  ],
+  "engines": {
+    "vscode": "^1.48.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./lib/extension.js",
+  "icon": "doc/images/icon.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "duoduorequest.insertModuleRequest",
+        "title": "插入请求模板"
+      },
+      {
+        "command": "duoduorequest.insertAllTypedef",
+        "title": "duoduorequest: insert all typedef"
+      },
+      {
+        "command": "duoduorequest.insertConfig",
+        "title": "duoduorequest: init"
+      },
+      {
+        "command": "duoduorequest.cleanCatch",
+        "title": "duoduorequest: clean catch"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId == javascript",
+          "command": "duoduorequest.insertModuleRequest",
+          "group": "duoduorequest"
+        },
+        {
+          "when": "resourceLangId == javascript",
+          "command": "duoduorequest.insertAllTypedef",
+          "group": "duoduorequest"
+        },
+        {
+          "when": "resourceLangId == javascript",
+          "command": "duoduorequest.insertConfig",
+          "group": "duoduorequest"
+        },
+        {
+          "when": "resourceLangId == javascript",
+          "command": "duoduorequest.cleanCatch",
+          "group": "duoduorequest"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "javascriptreact",
+        "path": "./snippets/base.json"
+      }
+    ]
+  },
+  "scripts": {
+    "publish": "vsce publish",
+    "prepublish": "build-js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.3",
+    "@types/mocha": "^8.0.4",
+    "@types/node": "^14.14.10",
+    "@types/vscode": "^1.51.0",
+    "@fdd/lint": "^5.1.3",
+    "@fdd/cli": "^1.0.47"
+  },
+  "dependencies": {
+    "mkdirp": "^1.0.4",
+    "vscode-helpers": "^8.0.0",
+    "fs-extra": "^9.0.1"
+  }
 }

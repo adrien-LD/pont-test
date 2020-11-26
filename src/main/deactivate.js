@@ -1,3 +1,1 @@
-function deactivate() {}
-
-module.exports = deactivate;
+export default function deactivate() {}

@@ -1,32 +1,30 @@
-const {definitionsParse,translateType} = require("./definitions");
-const {
-  jsdocParse
-} = require("./jsdocParse");
+import { definitionsParse, translateType } from './definitions';
+import jsdocParse from './jsdocParse';
 
-function parameter2requestInfo(parameters){
+function parameter2requestInfo(parameters) {
   const headers = [];
   const body = [];
   const params = [];
 
   parameters.forEach((item) => {
     const {
-      entityName:type,name,comment,annotation,required
+      entityName: type, name, comment, annotation, required,
     } = item;
 
     const info = {
       name,
-      description:comment,
+      description: comment,
       required,
-      type:translateType(type).type
-    }
+      type: translateType(type).type,
+    };
     switch (annotation) {
-      case "@RequestHeader":
+      case '@RequestHeader':
         headers.push(info);
         break;
-      case "@RequestBody":
+      case '@RequestBody':
         body.push(info);
         break;
-      case "@RequestParam":
+      case '@RequestParam':
         params.push(info);
         break;
 
@@ -38,20 +36,18 @@ function parameter2requestInfo(parameters){
   return {
     headers,
     body,
-    params
+    params,
   };
 }
 
-
 function parseInterfaceReal(api = {}, defObject) {
-
   const {
     code,
     name: funDesc,
     methods = [],
     paths = [],
     response,
-    requestParams = []
+    requestParams = [],
   } = api;
 
   const method = methods.length ? methods[0] : 'GET';
@@ -61,21 +57,20 @@ function parseInterfaceReal(api = {}, defObject) {
 
   const funParams = requestParams.map((paramItem) => ({
     name: paramItem.name,
-    required: paramItem.required
-  }))
+    required: paramItem.required,
+  }));
 
   const {
     paramsReturnLead: leadDoc,
-    typedefNameList: depadences
+    typedefNameList: depadences,
   } = jsdocParse(funDesc, requestParams, response, defObject);
 
   // 获取headers,body,params
   const {
     headers,
     body,
-    params
+    params,
   } = parameter2requestInfo(requestParams);
-
 
   return {
     headers,
@@ -87,7 +82,7 @@ function parseInterfaceReal(api = {}, defObject) {
     funDesc,
     method,
     path,
-    depadences
+    depadences,
   };
 }
 
@@ -104,7 +99,7 @@ function getAllInterfaceInfoList(chapters = []) {
   chapters.forEach((section) => {
     const {
       sections,
-      apis
+      apis,
     } = section;
     if (sections) {
       result = result.concat(getAllInterfaceInfoList(sections));
@@ -122,12 +117,11 @@ function getAllInterfaceInfoList(chapters = []) {
  * @param {object} data 请求接口后的参数
  * @returns {import("..").ParseInfo}
  */
-function tpdocParse(data = {}) {
-
+export default function tpdocParse(data = {}) {
   const {
     artifact,
     chapters,
-    entities
+    entities,
   } = data;
 
   const defObject = definitionsParse(entities);
@@ -138,10 +132,6 @@ function tpdocParse(data = {}) {
   return {
     basePath: '/',
     interfaceList,
-    defObject
-  }
-}
-
-module.exports = {
-  tpdocParse
+    defObject,
+  };
 }

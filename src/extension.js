@@ -1,7 +1,2 @@
-const activate = require('./main/activate');
-const deactivate = require('./main/deactivate');
-
-module.exports = {
-	activate,
-	deactivate
-}
+export activate from './main/activate';
+export deactivate from './main/deactivate';

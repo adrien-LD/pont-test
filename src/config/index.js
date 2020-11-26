@@ -1,5 +1,4 @@
-const PROJECT_CONFIG =
-`{
+export const PROJECT_CONFIG = `{
   "origins": [{
     "name": "上海",
     "type": "swagger2.0",
@@ -26,8 +25,7 @@ const PROJECT_CONFIG =
 }
 `;
 
-const PROJECT_FUNCTION =
-`
+export const PROJECT_FUNCTION = `
 /**
  * @typedef Type 类型
  * @property {string} name 类型名
@@ -80,9 +78,3 @@ export async function \${funName}(\${paramsStrList.join(', ')}){
 }
 \`
 }`;
-
-
-module.exports = {
-  PROJECT_CONFIG,
-  PROJECT_FUNCTION,
-}
