@@ -1,6 +1,4 @@
-const {
-  translateType
-} = require("./definitions");
+import { translateType } from './definitions';
 
 function deepStringify(refs, defObject, exist = {}) {
   let result = [];
@@ -24,8 +22,7 @@ function deepStringify(refs, defObject, exist = {}) {
  * @param {*} responses 方法返回结果
  * @param {*} defObject typedef的固定结构内容
  */
-function jsdocParse(funDesc, parameters, responses, defObject) {
-
+export default function jsdocParse(funDesc, parameters, responses, defObject) {
   const parameDocList = [];
   let refs = [];
 
@@ -33,26 +30,25 @@ function jsdocParse(funDesc, parameters, responses, defObject) {
   parameters.forEach((item) => {
     let type = 'any';
     const {
-      entityName
+      entityName,
     } = item;
-    const typeResult = translateType(entityName)
+    const typeResult = translateType(entityName);
     type = typeResult.type;
-    refs.push(type.replace(/[<|>]/g, "_"));
+    refs.push(type.replace(/[<|>]/g, '_'));
     refs = refs.concat(typeResult.dependence);
-    const paramStr = ` * @param {${type.replace(/[<|>]/g, "_")}} ${item.name.replace(/-/g,'')} ${item.comment}`
+    const paramStr = ` * @param {${type.replace(/[<|>]/g, '_')}} ${item.name.replace(/-/g, '')} ${item.comment}`;
     parameDocList.push(paramStr);
   });
 
   const returnTypeResult = translateType(responses.entityName);
-  const returnType = returnTypeResult.type.replace(/[<|>]/g, "_");
+  const returnType = returnTypeResult.type.replace(/[<|>]/g, '_');
   refs.push(returnType);
   refs = refs.concat(returnTypeResult.dependence);
 
   // 被引用的typedef
   const typedefNameList = deepStringify(refs, defObject);
 
-  const paramsReturnLead =
-`
+  const paramsReturnLead = `
 /**
  * ${funDesc}
 ${parameDocList.join('\n')}
@@ -61,10 +57,6 @@ ${parameDocList.join('\n')}
 
   return {
     paramsReturnLead,
-    typedefNameList
-  }
-}
-
-module.exports = {
-  jsdocParse
+    typedefNameList,
+  };
 }

@@ -1,10 +1,10 @@
-const { swagger2Parse } = require("./swagger");
-const { tpdocParse } = require("./tpdoc");
+import swagger2Parse from './swagger';
+import tpdocParse from './tpdoc';
 
 const parseMap = {
-  "swagger2.0":swagger2Parse,
-  "tp-doc": tpdocParse,
-}
+  'swagger2.0': swagger2Parse,
+  'tp-doc': tpdocParse,
+};
 
 /**
  * @typedef Type 类型
@@ -43,9 +43,7 @@ const parseMap = {
  * @param {string} type 文档类型
  * @returns {ParseInfo} 解析中间类型
  */
-function parse(data,type){
+export default function parse(data, type) {
   const parseFn = parseMap[type];
   return parseFn(data);
 }
-
-module.exports = parse;

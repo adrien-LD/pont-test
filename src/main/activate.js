@@ -1,72 +1,64 @@
-const vscode = require('vscode');
-const Path = require('path')
-const FSExtra = require('fs-extra');
-const {
+import vscode from 'vscode';
+import Path from 'path';
+import FSExtra from 'fs-extra';
+import {
   getProjectRoot,
   readJSONFile,
   sendErrorMessage,
   openSelect,
   writeFile,
-  sendMessage
-} = require('../utils');
-const {
-  getHttpRequest
-} = require('../request');
-const parse = require('../parse');
-const {
+  sendMessage,
+} from '../utils';
+import getHttpRequest from '../request';
+import parse from '../parse';
+import {
   PROJECT_FUNCTION,
-  PROJECT_CONFIG
-} = require('../config');
-const packageInfo = require('../../package.json');
+  PROJECT_CONFIG,
+} from '../config';
+import packageInfo from '../../package.json';
 
 const CONFIG_PATH = './duoduo/duoduo.request.json';
 const DEFAULT_PARSE_PATH = './duoduo/duoduo.request.js';
 const BASE_CATCH_PATH = './.vscode/duoduo';
-const CATCH_PATH = BASE_CATCH_PATH+'/v'+packageInfo.version;
+const CATCH_PATH = `${BASE_CATCH_PATH}/v${packageInfo.version}`;
 
 async function getOriginPick(config) {
-  const originPickItems = config.origins.map((ori) => {
-    return {
-      label: ori.name,
-      description: ori.originUrl,
-      services: ori.services,
-      type: ori.type
-    }
-  })
+  const originPickItems = config.origins.map((ori) => ({
+    label: ori.name,
+    description: ori.originUrl,
+    services: ori.services,
+    type: ori.type,
+  }));
   const origin = await openSelect(originPickItems);
-  if(!origin){
+  if (!origin) {
     throw new Error('组织选择被取消');
   }
   return origin;
 }
 
 async function getServicePick(services) {
-  const servicePickItems = services.map((serv) => {
-    return {
-      label: serv.name,
-      description: serv.appId,
-      detail: serv.serve,
-      old: {...serv}
-    }
-  });
+  const servicePickItems = services.map((serv) => ({
+    label: serv.name,
+    description: serv.appId,
+    detail: serv.serve,
+    old: { ...serv },
+  }));
   const service = await openSelect(servicePickItems);
-  if(!service){
+  if (!service) {
     throw new Error('服务选择被取消');
   }
   return service;
 }
 
 async function getInterfacePick(interfaceList) {
-  const interfacePickItems = interfaceList.map((inter) => {
-    return {
-      label: inter.path,
-      description: inter.funDesc,
-      detail: inter.funName,
-      inter
-    }
-  });
+  const interfacePickItems = interfaceList.map((inter) => ({
+    label: inter.path,
+    description: inter.funDesc,
+    detail: inter.funName,
+    inter,
+  }));
   const interfaceInfo = await openSelect(interfacePickItems);
-  if(!interfaceInfo){
+  if (!interfaceInfo) {
     throw new Error('接口选择被取消');
   }
   return interfaceInfo;
@@ -87,14 +79,14 @@ async function getServiceInfo(origin, service) {
   // 获取信息
   let httpPath;
   if (type.trim().toLowerCase() === 'swagger2.0') {
-    httpPath = originUrl + 'docs' + '/' + serviceAppId;
+    httpPath = `${originUrl}docs` + `/${serviceAppId}`;
   }
   switch (type.trim().toLowerCase()) {
     case 'swagger2.0':
-      httpPath = originUrl + 'docs' + '/' + serviceAppId;
+      httpPath = `${originUrl}docs` + `/${serviceAppId}`;
       break;
     case 'tp-doc':
-      httpPath = originUrl + 'api/doc/' + serviceServe+':'+serviceAppId+'/';
+      httpPath = `${originUrl}api/doc/${serviceServe}:${serviceAppId}/`;
       break;
 
     default:
@@ -106,16 +98,16 @@ async function getServiceInfo(origin, service) {
 
 async function getTempPick(config) {
   const {
-    temps = []
+    temps = [],
   } = config;
 
   const tempPickItems = temps.map((item) => ({
     label: item.name,
-    path: item.path
+    path: item.path,
   }));
   const temp = await openSelect(tempPickItems);
 
-  if(!temp){
+  if (!temp) {
     throw new Error('模板选择被取消');
   }
 
@@ -133,12 +125,12 @@ async function getTempPick(config) {
  * @param {Function} fun 模板方法
  * @param {any} param 方法参数
  */
-function execTempFun(fun, param){
+function execTempFun(fun, param) {
   try {
     const result = fun(param);
     return result;
   } catch (error) {
-    throw new Error('模板文件错误:'+error.toString());
+    throw new Error(`模板文件错误:${error.toString()}`);
   }
 }
 
@@ -163,7 +155,7 @@ function getInterfaceUnExistDepandenceDocStr(dependences, fileText, defObject) {
     if (!existList.includes(dep)) {
       results.push(defObject[dep].defStr);
     }
-  })
+  });
 
   return results.join('\n');
 }
@@ -172,12 +164,12 @@ function getInterfaceUnExistDepandenceDocStr(dependences, fileText, defObject) {
  * 获取所有的typedef
  * @param {Object} defObject 类型定义对象
  */
-function getAllTypeDefStr(defObject){
+function getAllTypeDefStr(defObject) {
   const resultList = [];
 
   for (const key in defObject) {
     if (defObject.hasOwnProperty(key)) {
-      if(defObject[key]){
+      if (defObject[key]) {
         const element = defObject[key].defStr;
         resultList.push(element);
       }
@@ -190,10 +182,9 @@ function getAllTypeDefStr(defObject){
 /**
  * @param {vscode.ExtensionContext} context
  */
-async function activate(context) {
-
+export default async function activate(context) {
   // 插入单个接口
-  let contextDisposable = vscode.commands.registerTextEditorCommand('duoduorequest.insertModuleRequest', async (textEditor, edit) => {
+  const contextDisposable = vscode.commands.registerTextEditorCommand('duoduorequest.insertModuleRequest', async (textEditor, edit) => {
     try {
       const rootPath = getProjectRoot();
       const config = await readJSONFile(Path.resolve(rootPath, CONFIG_PATH));
@@ -201,7 +192,7 @@ async function activate(context) {
       const origin = await getOriginPick(config);
       const {
         type,
-        services
+        services,
       } = origin;
       // 确定本次生成的服务
       const service = await getServicePick(services);
@@ -211,7 +202,7 @@ async function activate(context) {
        * @type {import('../parse').ParseInfo}
        */
       let interfaceInfo;
-      const catchFilePath = Path.resolve(rootPath, CATCH_PATH, service.description + '.json');
+      const catchFilePath = Path.resolve(rootPath, CATCH_PATH, `${service.description}.json`);
       if (FSExtra.existsSync(catchFilePath)) {
         interfaceInfo = await readJSONFile(catchFilePath);
       } else {
@@ -225,26 +216,27 @@ async function activate(context) {
 
       // 选择对应接口
       const {
-        interfaceList
+        interfaceList,
       } = interfaceInfo;
       const interfacePick = await getInterfacePick(interfaceList);
       const {
-        inter
+        inter,
       } = interfacePick;
       // 选择对应的模板
       const tempFunc = await getTempPick(config);
       // 将所选服务配置添加进去
       inter.serviceConfig = service.old;
       // 根据当前文件情况处理接口信息
-      inter.typeRefStr = getInterfaceUnExistDepandenceDocStr(inter.depadences, textEditor.document.getText(), interfaceInfo.defObject);
+      inter.typeRefStr = getInterfaceUnExistDepandenceDocStr(
+        inter.depadences, textEditor.document.getText(), interfaceInfo.defObject,
+      );
       // 根据选择的模板生成字符串
       const insertStr = execTempFun(tempFunc, inter);
       // 将字符串插入当前位置
-      textEditor.insertSnippet(new vscode.SnippetString(insertStr))
+      textEditor.insertSnippet(new vscode.SnippetString(insertStr));
     } catch (err) {
       sendErrorMessage(err.toString());
     }
-
   });
 
   // 初始化配置
@@ -260,20 +252,20 @@ async function activate(context) {
     writeFile(configPath, PROJECT_CONFIG);
 
     writeFile(defaultParePath, PROJECT_FUNCTION);
-  })
+  });
 
   // 清除缓存
-  const cleanDisposable = vscode.commands.registerCommand('duoduorequest.cleanCatch', async ()=>{
+  const cleanDisposable = vscode.commands.registerCommand('duoduorequest.cleanCatch', async () => {
     const rootPath = getProjectRoot();
     const cleanPath = Path.resolve(rootPath, BASE_CATCH_PATH);
 
     FSExtra.removeSync(cleanPath);
 
     sendMessage('缓存清除成功！');
-  })
+  });
 
   // 插入所有typedef
-  const allTypedefDisposable = vscode.commands.registerCommand('duoduorequest.insertAllTypedef', async ()=>{
+  const allTypedefDisposable = vscode.commands.registerCommand('duoduorequest.insertAllTypedef', async () => {
     try {
       const textEditor = vscode.window.activeTextEditor;
       const rootPath = getProjectRoot();
@@ -282,7 +274,7 @@ async function activate(context) {
       const origin = await getOriginPick(config);
       const {
         type,
-        services
+        services,
       } = origin;
       // 确定本次生成的服务
       const service = await getServicePick(services);
@@ -292,7 +284,7 @@ async function activate(context) {
        * @type {import('../parse').ParseInfo}
        */
       let interfaceInfo;
-      const catchFilePath = Path.resolve(rootPath, CATCH_PATH, service.description + '.json');
+      const catchFilePath = Path.resolve(rootPath, CATCH_PATH, `${service.description}.json`);
       if (FSExtra.existsSync(catchFilePath)) {
         interfaceInfo = await readJSONFile(catchFilePath);
       } else {
@@ -304,7 +296,7 @@ async function activate(context) {
         writeFile(catchFilePath, JSON.stringify(interfaceInfo));
       }
 
-      const {defObject} = interfaceInfo;
+      const { defObject } = interfaceInfo;
       // 所有typedef
       const allTypedefStr = getAllTypeDefStr(defObject);
       // 插入到当前位置
@@ -312,12 +304,9 @@ async function activate(context) {
     } catch (err) {
       sendErrorMessage(err.toString());
     }
-
-  })
+  });
   context.subscriptions.push(contextDisposable);
   context.subscriptions.push(initDisposable);
   context.subscriptions.push(cleanDisposable);
   context.subscriptions.push(allTypedefDisposable);
 }
-
-module.exports = activate;

@@ -1,6 +1,5 @@
-const {jsdocParse} = require("./jsdocParse");
-const definitionsParse = require("./definitions");
-
+import jsdocParse from './jsdocParse';
+import definitionsParse from './definitions';
 /**
  * 参数列表解析出请求所需的信息
  * @param {Object[]} parameters 参数列表
@@ -12,16 +11,16 @@ function parameter2requestInfo(parameters) {
 
   parameters.forEach((item) => {
     const {
-      in: place
+      in: place,
     } = item;
     switch (place) {
-      case "header":
+      case 'header':
         headers.push(item);
         break;
-      case "body":
+      case 'body':
         body.push(item);
         break;
-      case "query":
+      case 'query':
         params.push(item);
         break;
 
@@ -33,7 +32,7 @@ function parameter2requestInfo(parameters) {
   return {
     headers,
     body,
-    params
+    params,
   };
 }
 
@@ -47,27 +46,27 @@ function parameter2requestInfo(parameters) {
 function funParseReal(method, path, item, defObject) {
   const {
     summary: funDesc,
-    operationId:funName,
+    operationId: funName,
     consumes,
-    parameters=[],
-    responses
+    parameters = [],
+    responses,
   } = item;
 
   // 解析出jsdoc
-  const {paramsReturnLead:leadDoc,typedefNameList:depadences} = jsdocParse(funDesc, parameters, responses, defObject )
+  const { paramsReturnLead: leadDoc, typedefNameList: depadences } = jsdocParse(funDesc, parameters, responses, defObject);
 
   // 转换params
   const funParams = parameters.map((paramItem) => ({
     name: paramItem.name,
     type: paramItem.type,
-    required: paramItem.required
+    required: paramItem.required,
   }));
 
   // 获取headers,body,params
   const {
     headers,
     body,
-    params
+    params,
   } = parameter2requestInfo(parameters);
 
   return {
@@ -81,8 +80,8 @@ function funParseReal(method, path, item, defObject) {
     consumes,
     method,
     path,
-    depadences
-  }
+    depadences,
+  };
 }
 
 function funParse(path, pathItem, defObject) {
@@ -108,13 +107,13 @@ function funParse(path, pathItem, defObject) {
  * @param {object} data 请求接口后的参数
  * @returns {import("..").ParseInfo}
  */
-function swagger2Parse(data) {
+export default function swagger2Parse(data) {
   if (!data) return;
 
   const {
     basePath,
     paths = {},
-    definitions
+    definitions,
   } = data;
 
   let interfaceList = [];
@@ -132,10 +131,6 @@ function swagger2Parse(data) {
   return {
     basePath,
     interfaceList,
-    defObject
-  }
-}
-
-module.exports = {
-  swagger2Parse
+    defObject,
+  };
 }

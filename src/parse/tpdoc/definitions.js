@@ -1,12 +1,9 @@
-const {
-  uniqueArr
-} = require("../utils");
+import { uniqueArr } from '../utils';
 
-
-function translateType(type) {
-  if (!type) return {type:'any',dependence:[]};
+export function translateType(type) {
+  if (!type) return { type: 'any', dependence: [] };
   let result = type;
-  let dependence=[];
+  let dependence = [];
   const typeReal = type.trim().toLowerCase();
   switch (typeReal) {
     case 'int':
@@ -31,12 +28,12 @@ function translateType(type) {
     default:
       break;
   }
-  if(/^java.util.List<(?<generic>.+)>/g.test(type)){
-    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type)||{};
-    if(reg.groups){
+  if (/^java.util.List<(?<generic>.+)>/g.test(type)) {
+    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type) || {};
+    if (reg.groups) {
       const insideType = reg.groups.generic;
       const mResult = translateType(insideType);
-      if(mResult.type===insideType){
+      if (mResult.type === insideType) {
         dependence.push(insideType);
       }
       dependence = dependence.concat(mResult.dependence);
@@ -44,25 +41,25 @@ function translateType(type) {
     }
   }
 
-  if(/^java.util.Map<(?<generic1>.+), (?<generic2>.+)>/g.test(type)){
-    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type)||{};
-    if(reg.groups){
+  if (/^java.util.Map<(?<generic1>.+), (?<generic2>.+)>/g.test(type)) {
+    const reg = /^java.util.List<(?<generic>.+)>/g.exec(type) || {};
+    if (reg.groups) {
       const insideType2 = reg.groups.generic2;
       const mResult = translateType(insideType2);
-      if(mResult.type===insideType2){
+      if (mResult.type === insideType2) {
         dependence.push(insideType2);
       }
       dependence = dependence.concat(mResult.dependence);
       result = `Map<string, ${mResult.type}>`;
     }
   }
-  return {type:result,dependence};
+  return { type: result, dependence };
 }
 
 function getTypedefStrLine(refInfo) {
   if (!refInfo) return {};
   const {
-    fields = [], parameteredEntityRefs = []
+    fields = [], parameteredEntityRefs = [],
   } = refInfo;
   const refLeadList = [];
   let dependenceList = [];
@@ -71,30 +68,30 @@ function getTypedefStrLine(refInfo) {
     const {
       entityName,
       name,
-      comment
+      comment,
     } = field;
     const typeResult = translateType(entityName);
-    const _comment = comment ? ' '+comment.trim() : '';
+    const _comment = comment ? ` ${comment.trim()}` : '';
     refLeadList.push(` * @property {${typeResult.type}} ${name}${_comment}`);
-    if(entityName===typeResult.type){
+    if (entityName === typeResult.type) {
       dependenceList.push(typeResult.type);
     }
-    dependenceList = dependenceList.concat(typeResult.dependence)
+    dependenceList = dependenceList.concat(typeResult.dependence);
   });
 
   parameteredEntityRefs.forEach((depend) => {
     const {
-      entityName
+      entityName,
     } = depend;
     const name = entityName;
     if (name === translateType(name).type) {
       dependenceList.push(name);
     }
-  })
+  });
 
   return {
     refLead: refLeadList.join('\n'),
-    dependenceList
+    dependenceList,
   };
 }
 
@@ -104,38 +101,34 @@ function getTypedefStrLine(refInfo) {
  * @param {any} refInfo
  */
 function getTypedefObj(ref, refInfo) {
-
   const {
     refLead,
-    dependenceList
+    dependenceList,
   } = getTypedefStrLine(refInfo);
 
   if (!refLead) {
     return null;
   }
 
-  const comment = refInfo.comment ? ' '+refInfo.comment : '';
+  const comment = refInfo.comment ? ` ${refInfo.comment}` : '';
 
   const defStr = `
 /**
- * @typedef ${ref.replace(/[<|>]/g, "_")}${comment}
+ * @typedef ${ref.replace(/[<|>]/g, '_')}${comment}
 ${refLead}
  */`;
 
   return {
     defStr,
     dependenceList: uniqueArr(dependenceList),
-  }
+  };
 }
 
-function definitionsParse(definitions = []) {
-
+export function definitionsParse(definitions = []) {
   const result = {};
 
   definitions.forEach((def) => {
-    result[def.name.replace(/[<|>]/g, "_")] = getTypedefObj(def.name, def)
-  })
+    result[def.name.replace(/[<|>]/g, '_')] = getTypedefObj(def.name, def);
+  });
   return result;
 }
-
-module.exports = {definitionsParse,translateType};
