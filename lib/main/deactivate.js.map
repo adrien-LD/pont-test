@@ -1,1 +1,0 @@
-{"version":3,"sources":["../../src/main/deactivate.js"],"names":["deactivate"],"mappings":";;;;;;;AAAe,SAASA,UAAT,GAAsB,CAAE","sourcesContent":["export default function deactivate() {}\n"],"file":"deactivate.js"}

@@ -16,6 +16,9 @@ function responseTranslate(serves) {
   });
 }
 
-export default function getHttpRequest(url) {
-  return responseTranslate(vsHelp.GET(url));
+export default async function getHttpRequest(url) {
+  const result = await vsHelp.GET('http://test.webplatform.pstn.woa.com/schema/');
+  console.log(result)
+  return {};
+  // return responseTranslate(vsHelp.GET(url));
 }

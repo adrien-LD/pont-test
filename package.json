@@ -43,22 +43,22 @@
     "menus": {
       "editor/context": [
         {
-          "when": "resourceLangId == javascript",
+          "when": "resourceLangId == typescript",
           "command": "duoduorequest.insertModuleRequest",
           "group": "duoduorequest"
         },
         {
-          "when": "resourceLangId == javascript",
+          "when": "resourceLangId == typescript",
           "command": "duoduorequest.insertAllTypedef",
           "group": "duoduorequest"
         },
         {
-          "when": "resourceLangId == javascript",
+          "when": "resourceLangId == typescript",
           "command": "duoduorequest.insertConfig",
           "group": "duoduorequest"
         },
         {
-          "when": "resourceLangId == javascript",
+          "when": "resourceLangId == typescript",
           "command": "duoduorequest.cleanCatch",
           "group": "duoduorequest"
         }
@@ -66,22 +66,19 @@
     },
     "snippets": [
       {
-        "language": "javascriptreact",
+        "language": "typescriptreact",
         "path": "./snippets/base.json"
       }
     ]
   },
   "scripts": {
-    "publish": "vsce publish",
-    "prepublish": "build-js"
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.0.4",
     "@types/node": "^14.14.10",
-    "@types/vscode": "^1.51.0",
-    "@fdd/lint": "^5.1.3",
-    "@fdd/cli": "^1.0.47"
+    "@types/vscode": "^1.51.0"
   },
   "dependencies": {
     "mkdirp": "^1.0.4",

@@ -1,1 +1,0 @@
-{"version":3,"sources":["../src/extension.js"],"names":["activate","deactivate"],"mappings":"sBAAqB,iB;sBAAdA,Q;wBACgB,mB;wBAAhBC,U","sourcesContent":["export activate from './main/activate';\nexport deactivate from './main/deactivate';\n"],"file":"extension.js"}

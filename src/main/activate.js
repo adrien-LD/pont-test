@@ -79,11 +79,11 @@ async function getServiceInfo(origin, service) {
   // 获取信息
   let httpPath;
   if (type.trim().toLowerCase() === 'swagger2.0') {
-    httpPath = `${originUrl}docs` + `/${serviceAppId}`;
+    httpPath = `${originUrl}` + `/${serviceAppId}`;
   }
   switch (type.trim().toLowerCase()) {
     case 'swagger2.0':
-      httpPath = `${originUrl}docs` + `/${serviceAppId}`;
+      httpPath = `${originUrl}` + `/${serviceAppId}`;
       break;
     case 'tp-doc':
       httpPath = `${originUrl}api/doc/${serviceServe}:${serviceAppId}/`;
@@ -92,7 +92,7 @@ async function getServiceInfo(origin, service) {
     default:
       throw new Error('配置文件有误，请重新初始化！');
   }
-  const data = await getHttpRequest(httpPath);
+  const data = await getHttpRequest(originUrl);
   return data;
 }
 
