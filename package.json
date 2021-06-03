@@ -32,13 +32,13 @@
 		}],
 		"menus": {
 			"editor/context": [{
-				"when": "resourceLangId == javascript",
+				"when": "resourceLangId == typescript",
 				"command": "duoduorequest.insertModuleRequest",
 				"group": "navigation"
 			}]
 		},
 		"snippets": [{
-			"language": "javascriptreact",
+			"language": "typescriptreact",
 			"path": "./snippets/base.json"
 		}]
 	},

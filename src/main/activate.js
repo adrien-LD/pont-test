@@ -100,7 +100,7 @@ async function getServiceInfo(origin, service) {
     default:
       throw new Error('配置文件有误，请重新初始化！');
   }
-  const data = await getHttpRequest(httpPath);
+  const data = await getHttpRequest('http://test.webplatform.pstn.woa.com/schema/');
   return data;
 }
 
